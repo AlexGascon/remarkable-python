@@ -1,0 +1,20 @@
+[tool.poetry]
+name = "remarkable-python"
+version = "0.1.0"
+description = "Python library to connect with your Remarkable tablet. Works with the new API"
+authors = ["Your Name <you@example.com>"]
+
+[tool.poetry.dependencies]
+python = "^3.7"
+requests = "^2.27.1"
+PyYAML = "^6.0"
+dataclass-builder = "^1.2.0"
+
+[tool.poetry.dev-dependencies]
+ipython = "^7.31.0"
+ipdb = "^0.13.9"
+pytest = "^6.2.5"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
