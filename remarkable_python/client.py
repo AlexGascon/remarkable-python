@@ -11,6 +11,7 @@ import requests
 @dataclass
 class Client:
     ROOT_FILE_ID = 'root'
+    REMARKABLE_CLOUD_CONTENT_ENCODING = 'utf-8'
 
     def __init__(self):
         self.auth_credentials = AuthCredentials.create_from_file()
@@ -45,20 +46,27 @@ class Client:
             raise Exception("Can't renew token: {e}".format(
                 e=response.status_code))
 
+    def _get_request(self, content_id):
+        body = json.dumps({'http_method': 'GET', 'relative_path': content_id})
+        location_response = requests.post(API_DOWNLOAD, data=body, headers=self.headers)
+
+        if location_response.status_code != 200:
+            raise Exception("Error getting file: " + self._decode_content(location_response.content))
+
+        file_location = location_response.json()['url']
+        return requests.get(file_location, headers=self.headers)
+
     def get_file(self, file_id):
-        body = json.dumps({'http_method': 'GET', 'relative_path': file_id})
-        response = requests.post(API_DOWNLOAD, data=body, headers=self.headers)
+        response = self._get_request(file_id)
+        return self._decode_content(response.content)
 
-        if response.status_code != 200:
-            raise Exception("Error getting file: " + response.content.decode('ascii'))
-
-        file_location = response.json()['url']
-        response = requests.get(file_location, headers=self.headers)
-
-        return response.content.decode('ascii')
+    def get_file_bin(self, file_id):
+        response = self._get_request(file_id)
+        return response.content
 
     def get_root_index(self):
-        root_index_id = self.get_file(self.ROOT_FILE_ID)
+        response = self._get_request(self.ROOT_FILE_ID)
+        root_index_id = self._decode_content(response.content)
 
         return self.list_files_in_index(root_index_id)
 
@@ -76,4 +84,5 @@ class Client:
         file_location = response.json()['url']
         response = requests.get(file_location, headers=self.headers)
 
-        return response.content
+    def _decode_content(self, content):
+        return content.decode(self.REMARKABLE_CLOUD_CONTENT_ENCODING)
