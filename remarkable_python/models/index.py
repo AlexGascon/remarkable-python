@@ -31,7 +31,7 @@ class Index:
         return iter(self.index_entries)
 
     def __repr__(self):
-        return f'Index({", ".join(ie.uuid for ie in self.index_entries)})'
+        return f'Index({", ".join(ie.path_id for ie in self.index_entries)})'
         
     @property
     def content_type(self):
